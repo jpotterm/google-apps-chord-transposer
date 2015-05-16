@@ -1,0 +1,105 @@
+<script>
+  window.transposeLocked = false;
+
+  var semitones = document.getElementById('semitones');
+  var keyFrom = document.getElementById('key-from');
+  var keyTo = document.getElementById('key-to');
+  var formMessages = document.querySelector('.form-messages');
+  var formSubmit = document.querySelector('input[type=submit]');
+
+  document.querySelector('.sidebar form').addEventListener('submit', transpose);
+  semitones.addEventListener('change', semitonesChanged);
+  keyFrom.addEventListener('change', keyChanged);
+  keyTo.addEventListener('change', keyChanged);
+
+  function semitonesChanged(e) {
+    keyFrom.value = '';
+    keyTo.value = '';
+  }
+
+  function keyChanged(e) {
+    semitones.value = '';
+  }
+
+  function transpose(e) {
+    e.preventDefault();
+    hideMessages(formMessages);
+
+    if (semitones.value !== '') {
+      transposeSemitones(parseInt(semitones.value));
+    } else if (keyFrom.value !== '' && keyTo.value !== '') {
+      transposeKey(keyFrom.value, keyTo.value);
+    } else {
+      // Error
+      showMessages(formMessages, ['You must select a semitone amount or a key.']);
+    }
+  }
+
+  function transposeSemitones(amount) {
+    if (window.transposeLocked) return;
+    window.transposeLocked = true;
+
+    formSubmit.value = 'Processing...';
+    formSubmit.setAttribute('disabled', 'true');
+
+    google.script.run.withSuccessHandler(success)
+        .withFailureHandler(failure).runTranspose(amount);
+  }
+
+  function transposeKey(from, to) {
+    if (window.transposeLocked) return;
+    window.transposeLocked = true;
+
+    formSubmit.value = 'Processing...';
+    formSubmit.setAttribute('disabled', 'true');
+
+    google.script.run.withSuccessHandler(success)
+        .withFailureHandler(failure).runTransposeKey(from, to);
+  }
+
+  function success(messages) {
+    window.transposeLocked = false;
+
+    formSubmit.value = 'Transpose';
+    formSubmit.removeAttribute('disabled');
+
+    keyFrom.value = '';
+    keyTo.value = '';
+
+    if (messages.length !== 0) {
+      showMessages(formMessages, messages);
+    }
+  }
+
+  function failure() {
+    window.transposeLocked = false;
+
+    formSubmit.value = 'Transpose';
+    formSubmit.removeAttribute('disabled');
+
+    showMessages(formMessages, ['Something went wrong. Please try again.']);
+  }
+
+  function hideMessages(element) {
+    element.classList.add('hide');
+  }
+
+  function showMessages(element, messages) {
+    removeChildren(element);
+
+    for (var i = 0; i < messages.length; ++i) {
+      var message = messages[i];
+      var li = document.createElement('li');
+      li.appendChild(document.createTextNode(message));
+      element.appendChild(li);
+    }
+
+    element.classList.remove('hide');
+  }
+
+  function removeChildren(node) {
+    while (node.firstChild) {
+      node.removeChild(node.firstChild);
+    }
+  }
+</script>

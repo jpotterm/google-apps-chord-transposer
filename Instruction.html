@@ -1,0 +1,51 @@
+<style>
+  body {
+    margin: 0;
+    padding-top: 10px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.45;
+    color: #333;
+  }
+
+  p {
+    margin: 21px 0;
+  }
+
+  p:first-child {
+    margin-top: 0;
+  }
+
+  p:last-child {
+    margin-bottom: 0;
+  }
+
+  pre {
+    line-height: 1.2;
+    margin: 21px 0;
+    padding: 6px 10px;
+    background-color: #FAFAFA;
+    border: 1px solid #DDD;
+  }
+
+  code {
+    font-size: 13px;
+  }
+</style>
+
+
+<p>Chord Transposer expects a document like the following.</p>
+
+<pre><code>    A      B       C
+Big wheels keep on turning
+      D       E      F
+Carry me home to see my kin</code></pre>
+
+<p>You can tell it how much to transpose either in terms of semitones or keys. If you select +1 semitone and click <q>Transpose</q>, the document will become:</p>
+
+<pre><code>    A#     C       C#
+Big wheels keep on turning
+      D#      F      F#
+Carry me home to see my kin</code></pre>
+
+<p>By default it will transpose the entire document. If you only want to transpose part of the document, just select that portion before you transpose.</p>
