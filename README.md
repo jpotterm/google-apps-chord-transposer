@@ -1,9 +1,7 @@
 #Installation
 
-1. Open a Google Doc
-2. Select `Add-ons > Get add-ons…`
-3. Search for "Chord Transposer"
-4. Click `+Free`
+1. Go to the page for [this add-on](https://chrome.google.com/webstore/detail/chord-transposer/mdnakkgkcmcchmoolnjfkckmaahedlaj) in the Chrome Web Store
+4. Click `+Free` to install
 
 
 #Usage

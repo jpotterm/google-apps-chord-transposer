@@ -1,10 +1,10 @@
 function repeatCharacter(character, length) {
   var result = '';
-
+  
   for (var i = 0; i < length; ++i) {
     result += character;
   }
-
+  
   return result;
 }
 

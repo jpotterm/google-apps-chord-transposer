@@ -1,68 +1,35 @@
 <!DOCTYPE html>
 <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons.css">
 
-<?!= include('Stylesheet'); ?>
+<?!= include('client/style'); ?>
 
 <div class="sidebar">
   <div class="sidebar-section">
     <form>
       <div class="field">
-        <label for="semitones">Semitones
-        </label><select id="semitones">
-          <option value="-6">-6</option>
-          <option value="-5">-5</option>
-          <option value="-4">-4</option>
-          <option value="-3">-3</option>
-          <option value="-2">-2</option>
-          <option value="-1">-1</option>
-          <option value="" selected>Amount</option>
-          <option value="1">+1</option>
-          <option value="2">+2</option>
-          <option value="3">+3</option>
-          <option value="4">+4</option>
-          <option value="5">+5</option>
-          <option value="6">+6</option>
+        <label for="mode">Mode
+        </label><select id="mode">
+          <option value="major" selected>Major</option>
+          <option value="minor">Minor</option>
         </select>
       </div>
-
+      
       <div class="field">
         <label>Key
         </label><select id="key-from">
           <option value="" selected>From</option>
-          <option value="A">A</option>
-          <option value="A#">A#</option>
-          <option value="B">B</option>
-          <option value="C">C</option>
-          <option value="C#">C#</option>
-          <option value="D">D</option>
-          <option value="D#">D#</option>
-          <option value="E">E</option>
-          <option value="F">F</option>
-          <option value="F#">F#</option>
-          <option value="G">G</option>
-          <option value="G#">G#</option>
+          <?!= include('client/key_options'); ?>
         </select><select id="key-to">
           <option value="" selected>To</option>
-          <option value="A">A</option>
-          <option value="A#">A#</option>
-          <option value="B">B</option>
-          <option value="C">C</option>
-          <option value="C#">C#</option>
-          <option value="D">D</option>
-          <option value="D#">D#</option>
-          <option value="E">E</option>
-          <option value="F">F</option>
-          <option value="F#">F#</option>
-          <option value="G">G</option>
-          <option value="G#">G#</option>
+          <?!= include('client/key_options'); ?>
         </select>
       </div>
-
+      
       <input class="blue" type="submit" value="Transpose" />
-
+      
       <ul class="form-messages error hide"></ul>
     </form>
   </div>
 </div>
 
-<?!= include('Javascript'); ?>
+<?!= include('client/javascript'); ?>

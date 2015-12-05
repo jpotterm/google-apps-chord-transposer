@@ -10,14 +10,14 @@ function onInstall(e) {
 }
 
 function showSidebar() {
-  var ui = HtmlService.createTemplateFromFile('Sidebar').evaluate();
+  var ui = HtmlService.createTemplateFromFile('client/index').evaluate();
   ui.setSandboxMode(HtmlService.SandboxMode.IFRAME);
   ui.setTitle('Chord Transposer');
   DocumentApp.getUi().showSidebar(ui);
 }
 
 function showInstructions() {
-  var ui = HtmlService.createHtmlOutputFromFile('Instruction');
+  var ui = HtmlService.createHtmlOutputFromFile('client/instruction');
   ui.setSandboxMode(HtmlService.SandboxMode.IFRAME);
   ui.setWidth(500);
   ui.setHeight(370);
