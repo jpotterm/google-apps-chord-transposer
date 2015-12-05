@@ -76,12 +76,12 @@ function filterContextChords(words) {
   
   for (var i = 0; i < words.length; ++i) {
     var word = words[i];
-    var chord = chordFromString(word.content);
+    var chord = pkg.chord.fromString(word.content);
     
     if (chord === null) continue;
     if (isFalsePositive(i, words)) continue;
     
-    contextChords.push(new ContextChord(chord, word));
+    contextChords.push(new pkg.chord.ContextChord(chord, word));
   }
   
   return contextChords;
@@ -92,7 +92,7 @@ function isFalsePositive(i, words) {
   var chordNeighbors = 0;
   
   if (i !== 0) {
-    if (isChord(words[i-1].content)) {
+    if (pkg.chord.isChord(words[i-1].content)) {
       chordNeighbors += 1;
     } else {
       nonChordNeighbors += 1;
@@ -100,7 +100,7 @@ function isFalsePositive(i, words) {
   }
   
   if (i !== words.length - 1) {
-    if (isChord(words[i+1].content)) {
+    if (pkg.chord.isChord(words[i+1].content)) {
       chordNeighbors += 1;
     } else {
       nonChordNeighbors += 1;

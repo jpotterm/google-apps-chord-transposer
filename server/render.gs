@@ -13,9 +13,10 @@ function hasChords(parsedElements) {
   return false;
 }
 
-function transposeParsedElements(transposeAmount, parsedElements) {
+function transposeParsedElements(mode, fromKey, toKey, parsedElements) {
   function transposeWord(contextChord) {
-    var transposedWord = new Word(contextChord.oldWord.offset, contextChord.chord.transpose(transposeAmount).toString());
+    var transposedChord = pkg.chord.transpose(mode, fromKey, toKey, contextChord.chord);
+    var transposedWord = new Word(contextChord.oldWord.offset, pkg.chord.toString(transposedChord));
     return new ReplacementWord(contextChord.oldWord, transposedWord);
   }
   

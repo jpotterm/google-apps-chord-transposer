@@ -1,50 +1,62 @@
-function Chord(note, rest, base) {
+var pkg = pkg || {};
+pkg.chord = pkg.chord || {};
+
+pkg.chord.Chord = function(note, rest, base) {
+  if (base === undefined) {
+    base = null;
+  }
+  
   this.note = note;
   this.rest = rest;
   this.base = base;
-}
-
-Chord.prototype.transpose = function(amount) {
-  var newNote = transposeNote(this.note, amount);
-  var newBase = this.base;
-  
-  if (this.base !== '') {
-    newBase = transposeNote(this.base, amount);
-  }
-  
-  return new Chord(newNote, this.rest, newBase);
 };
 
-Chord.prototype.toString = function() {
-  var result = this.note + this.rest;
+pkg.chord.transpose = function(mode, fromKey, toKey, chord) {
+  var newNote = pkg.note.transpose(mode, fromKey, toKey, chord.note);
   
-  if (this.base !== '') {
-    result += '/' + this.base;
+  var newBase = chord.base;
+  if (chord.base !== null) {
+    newBase = pkg.note.transpose(mode, fromKey, toKey, chord.base);
+  }
+  
+  return new pkg.chord.Chord(newNote, chord.rest, newBase);
+};
+
+pkg.chord.toString = function(chord) {
+  var result = pkg.note.toString(chord.note) + chord.rest;
+  
+  if (chord.base !== null) {
+    result += '/' + pkg.note.toString(chord.base);
   }
   
   return result;
 };
 
-
-function ContextChord(chord, oldWord) {
+pkg.chord.ContextChord = function(chord, oldWord) {
   this.chord = chord;
   this.oldWord = oldWord;
-}
+};
 
+pkg.chord.isChord = function(str) {
+  return pkg.chord.fromString(str) !== null;
+};
 
-function isChord(str) {
-  return chordFromString(str) !== null;
-}
-
-function chordFromString(str) {
+pkg.chord.fromString = function(str) {
   // Get the root note
   var restStart = 1;
-  var symbol = str.substring(1, 2);
-  if (symbol === '#' || symbol === 'b') {
-    restStart = 2;
+  var symbols = str.substring(1);
+  
+  for (var i = 0; i < symbols.length; ++i) {
+    var symbol = symbols[i];
+    
+    if (symbol === '#' || symbol === 'b') {
+      restStart += 1;
+    } else {
+      break;
+    }
   }
   
-  var note = getNote(str.substring(0, restStart));
+  var note = pkg.note.fromString(str.substring(0, restStart));
   
   if (note === null) return null;
 
@@ -54,51 +66,23 @@ function chordFromString(str) {
   rest = parts[0];
   
   if (parts.length > 2) return null;
-  if (rest !== '' && !validRest(rest)) return null;
+  if (rest !== '' && !pkg.chord.validRest(rest)) return null;
   
   // Get base
-  var base = '';
+  var base = null;
   if (parts.length === 2) {
-    base = getNote(parts[1]);
+    base = pkg.note.fromString(parts[1]);
     if (base === null) return null;
   }
   
-  return new Chord(note, rest, base);
-}
+  return new pkg.chord.Chord(note, rest, base);
+};
 
-function transposeNote(note, amount) {
-  var index = settings.notes.indexOf(note);
-  var newIndex = circularIndex((index + amount), settings.notes.length);
-  return settings.notes[newIndex];
-}
-  
-function getNote(str) {
-  if (str.length > 2) return null;
-  
-  var noteIndex = settings.notes.indexOf(str.substring(0, 1));
-  if (noteIndex < 0) return null;
-  
-  if (str.length > 1) {
-    var symbol = str.substring(1, 2);
-    
-    if (symbol === '#') {
-      noteIndex += 1;
-    } else if (symbol === 'b') {
-      noteIndex -= 1;
-    } else {
-      return null;
-    }
-  }
-  
-  var normalizedIndex = circularIndex(noteIndex, settings.notes.length);
-  return settings.notes[normalizedIndex];
-}
-
-function validRest(rest) {
+pkg.chord.validRest = function(rest) {
   var parts = [
     'aug',
     'add',
-    'b',
+    'dim',
     'dom',
     'M',
     'm',
@@ -113,10 +97,9 @@ function validRest(rest) {
     'sus',
     '-',
     '\\+',
-    '#',
     '\\d'
   ];
   
   var pattern = new RegExp('^(' + parts.join('|') + ')*$');
   return pattern.test(rest);
-}
+};

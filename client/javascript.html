@@ -40,14 +40,14 @@
     hideMessages(formMessages);
     
     if (keyFrom.value !== '' && keyTo.value !== '') {
-      transposeKey(keyFrom.value, keyTo.value);
+      transposeKey(mode.value, keyFrom.value, keyTo.value);
     } else {
       // Error
       showMessages(formMessages, ['You must select a from and to key.']);
     }
   }
     
-  function transposeKey(from, to) {
+  function transposeKey(mode, from, to) {
     if (window.transposeLocked) return;
     window.transposeLocked = true;
     
@@ -55,7 +55,7 @@
     formSubmit.setAttribute('disabled', 'true');
     
     google.script.run.withSuccessHandler(success)
-        .withFailureHandler(failure).runTransposeKey(from, to);
+        .withFailureHandler(failure).runTranspose(mode, from, to);
   }
   
   function success(messages) {

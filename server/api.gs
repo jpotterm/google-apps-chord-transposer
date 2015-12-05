@@ -1,16 +1,12 @@
-function runTransposeKey(from, to) {
-  var fromIndex = settings.notes.indexOf(from);
-  var toIndex = settings.notes.indexOf(to);
+function runTranspose(modeString, from, to) {
+  var fromKey = pkg.note.fromString(from);
+  var toKey = pkg.note.fromString(to);
+  var mode = settings.modes[modeString];
   
-  var amount = toIndex - fromIndex;
-  if (fromIndex > toIndex) {
-    amount = toIndex - (fromIndex + settings.notes.length);
-  }
-  
-  runTranspose(amount);
+  return runTransposeKey(mode, fromKey, toKey);
 }
 
-function runTranspose(transposeAmount) {
+function runTransposeKey(mode, fromKey, toKey) {
   var document = DocumentApp.getActiveDocument();
   var selection = document.getSelection();
   var parsedElements;
@@ -21,7 +17,7 @@ function runTranspose(transposeAmount) {
     parsedElements = parseSelection(document, selection);
   }
   
-  var transposed = transposeParsedElements(transposeAmount, parsedElements);
+  var transposed = transposeParsedElements(mode, fromKey, toKey, parsedElements);
   var spaced = spaceElements(transposed);
   renderReplacementElements(spaced, document, selection);
   
