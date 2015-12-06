@@ -14,8 +14,8 @@ function apiTranspose(modeString, from, to) {
   }
   
   var transposed = pkg.util.transposeParsedElements(mode, fromKey, toKey, parsedElements);
-  var spaced = pkg.render.spaceElements(transposed);
-  pkg.render.renderReplacementElements(spaced, document, selection);
+  var spaced = pkg.render.spaceParsedElements(parsedElements, transposed);
+  pkg.render.renderParsedElements(spaced, document, selection);
   
   if (pkg.util.hasChords(parsedElements)) {
     return [];

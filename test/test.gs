@@ -1,5 +1,3 @@
-// TODO: ensure spacing between chords and non-chords
-
 var testSectionId;
 
 function testAll() {

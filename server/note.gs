@@ -1,15 +1,6 @@
 var pkg = pkg || {};
 pkg.note = pkg.note || {};
 
-pkg.note.Note = function(name, accidental) {
-  if (accidental === undefined) {
-    accidental = 0;
-  }
-  
-  this.name = name;
-  this.accidental = accidental;
-};
-
 pkg.note.toString = function(note) {
   var result = note.name;
   var symbol = note.accidental > 0 ? '#' : 'b';
@@ -66,7 +57,7 @@ pkg.note.fromString = function(str) {
   var noteIndex = settings.noteNames.indexOf(noteName);
   if (noteIndex < 0) return null;
   
-  var note = new pkg.note.Note(noteName);
+  var note = new Note(noteName);
   
   for (var i = 1; i < str.length; ++i) {
     if (str[i] === '#') {

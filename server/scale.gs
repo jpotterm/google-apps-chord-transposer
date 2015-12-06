@@ -7,7 +7,7 @@ pkg.scale.generate = function(mode, rootNote) {
   
   for (var i = 0; i < settings.noteNames.length; ++i) {
     var noteName = settings.noteNames[(i + rootIndex) % settings.noteNames.length];
-    scale.push(new pkg.note.Note(noteName));
+    scale.push(new Note(noteName));
   }
   
   for (var i = 0; i < scale.length; ++i) {

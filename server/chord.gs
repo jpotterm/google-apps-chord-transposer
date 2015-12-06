@@ -1,16 +1,6 @@
 var pkg = pkg || {};
 pkg.chord = pkg.chord || {};
 
-pkg.chord.Chord = function(note, rest, base) {
-  if (base === undefined) {
-    base = null;
-  }
-  
-  this.note = note;
-  this.rest = rest;
-  this.base = base;
-};
-
 pkg.chord.transpose = function(mode, fromKey, toKey, chord) {
   var newNote = pkg.note.transpose(mode, fromKey, toKey, chord.note);
   
@@ -19,7 +9,7 @@ pkg.chord.transpose = function(mode, fromKey, toKey, chord) {
     newBase = pkg.note.transpose(mode, fromKey, toKey, chord.base);
   }
   
-  return new pkg.chord.Chord(newNote, chord.rest, newBase);
+  return new Chord(newNote, chord.rest, newBase);
 };
 
 pkg.chord.toString = function(chord) {
@@ -30,11 +20,6 @@ pkg.chord.toString = function(chord) {
   }
   
   return result;
-};
-
-pkg.chord.ContextChord = function(chord, oldWord) {
-  this.chord = chord;
-  this.oldWord = oldWord;
 };
 
 pkg.chord.isChord = function(str) {
@@ -75,7 +60,7 @@ pkg.chord.fromString = function(str) {
     if (base === null) return null;
   }
   
-  return new pkg.chord.Chord(note, rest, base);
+  return new Chord(note, rest, base);
 };
 
 pkg.chord.validRest = function(rest) {

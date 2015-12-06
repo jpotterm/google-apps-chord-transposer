@@ -2,19 +2,19 @@ var pkg = pkg || {};
 pkg.render = pkg.render || {};
 
 (function() {
-  pkg.render.renderReplacementElements = renderReplacementElements;
-  pkg.render.spaceElements = spaceElements;
+  pkg.render.renderParsedElements = renderParsedElements;
+  pkg.render.spaceParsedElements = spaceParsedElements;
 
   // ------
   // Render
   // ------
   
-  function renderReplacementElements(parsedElements, document, selection) {
+  function renderParsedElements(parsedElements, document, selection) {
     var newRange = document.newRange();
     
     for (var i = 0; i < parsedElements.length; ++i) {
       var parsedElement = parsedElements[i];
-      var offsetDelta = renderReplacementLines(parsedElement);
+      var offsetDelta = renderParsedElement(parsedElement);
       
       // Rebuild selection
       if (parsedElement.selectionElement !== null) {
@@ -33,140 +33,82 @@ pkg.render = pkg.render || {};
     }
   }
   
-  function renderReplacementLines(parsedElement) {
+  function renderParsedElement(parsedElement) {
     var offsetDelta = 0;
     
     for (var i = 0; i < parsedElement.lines.length; ++i) {
       var line = parsedElement.lines[i];
-      var lineEndOffset = line.lineEndOffset + offsetDelta;
-      var replacementWords = increaseOffsetReplacementWords(offsetDelta, line.replacementWords);
+      var lineString = lineToString(line);
+      var offset = line.offset + offsetDelta;
       
-      var currentOffsetDelta = adjustLineLength(replacementWords, parsedElement.text, lineEndOffset);
-      eraseOldWords(replacementWords, parsedElement.text, lineEndOffset + currentOffsetDelta);
-      renderReplacementWords(replacementWords, parsedElement.text);
+      // Replace line
+      parsedElement.text.deleteText(offset, offset + line.length - 1);
+      parsedElement.text.insertText(offset, lineString);
       
-      offsetDelta += currentOffsetDelta;
+      offsetDelta += lineString.length - line.length;
     }
     
     return offsetDelta;
   }
   
-  function renderReplacementWords(replacementWords, text) {
-    for (var i = 0; i < replacementWords.length; ++i) {
-      renderReplacementWord(replacementWords[i], text);
-    }
-  }
-  
-  function renderReplacementWord(replacementWord, text) {
-    var new_ = replacementWord.new_;
-    var newEndOffset = new_.offset + new_.content.length - 1;
+  function lineToString(line) {
+    var result = '';
     
-    // Add new word
-    text.deleteText(new_.offset, newEndOffset);
-    text.insertText(new_.offset, new_.content);
-  }
-  
-  // -----
-  // Erase
-  // -----
-  
-  function adjustLineLength(replacementWords, text, lineEndOffset) {
-    if (replacementWords.length === 0) return 0;
-    
-    var replacementWord = replacementWords[replacementWords.length - 1];
-    
-    var oldEndOffset = replacementWord.old.offset + replacementWord.old.content.length - 1;
-    var newEndOffset = replacementWord.new_.offset + replacementWord.new_.content.length - 1;
-    var lastOnLine = oldEndOffset === lineEndOffset || newEndOffset >= lineEndOffset;
-    
-    if (!lastOnLine || newEndOffset === lineEndOffset) return 0;
-    
-    if (newEndOffset < lineEndOffset) {
-      text.deleteText(newEndOffset + 1, lineEndOffset);
-    } else {
-      text.insertText(lineEndOffset + 1, pkg.util.repeatCharacter(' ', newEndOffset - lineEndOffset));
-    }
-    
-    return newEndOffset - lineEndOffset;
-  }
-  
-  function eraseOldWords(replacementWords, text, lineEndOffset) {
-    for (var i = 0; i < replacementWords.length; ++i) {
-      eraseOldWord(replacementWords[i], text, lineEndOffset);
-    }
-  }
-  
-  function eraseOldWord(replacementWord, text, lineEndOffset) {
-    var old = replacementWord.old;
-    var oldEndOffset = old.offset + old.content.length - 1;
-    
-    // Don't erase if the old word is beyond where the line now ends
-    if (old.offset > lineEndOffset) return;
-    
-    var delta = 0;
-    if (oldEndOffset > lineEndOffset) {
-      delta = oldEndOffset - lineEndOffset;
-    }
-    
-    // Overwrite old word with spaces
-    text.deleteText(old.offset, oldEndOffset - delta);
-    text.insertText(old.offset, pkg.util.repeatCharacter(' ', old.content.length - delta));
-  }
-  
-  // ------
-  // Offset
-  // ------
-  
-  function increaseOffsetReplacementWords(offsetDelta, replacementWords) {
-    var result = [];
-    
-    for (var i = 0; i < replacementWords.length; ++i) {
-      var r = replacementWords[i];
-      var old = increaseOffsetWord(offsetDelta, r.old);
-      var new_ = increaseOffsetWord(offsetDelta, r.new_);
-      result.push(new ReplacementWord(old, new_));
+    for (var i = 0; i < line.items.length; ++i) {
+      var item = line.items[i];
+      
+      if (item instanceof Chord) {
+        result += pkg.chord.toString(item);
+      } else {
+        result += item.content;
+      }
     }
     
     return result;
-  }
-  
-  function increaseOffsetWord(offsetDelta, word) {
-    return new Word(word.offset + offsetDelta, word.content, word.type);
   }
   
   // -----
   // Space
   // -----
   
-  function spaceElements(parsedElements) {
-    return pkg.util.mapLine(spaceLine, parsedElements);
-  }
-  
-  function spaceLine(line) {
-    return new ReplacementWordLine(spaceReplacementWords(line.replacementWords), line.lineEndOffset);
-  }
-  
-  function spaceReplacementWords(replacementWords) {
-    var result = [];
+  function spaceParsedElements(oldParsedElements, newParsedElements) {
+    var resultParsedElements = [];
     
-    for (var i = 0; i < replacementWords.length; ++i) {
-      if (i === 0) {
-        result.push(replacementWords[i]);
-        continue;
+    for (var i = 0; i < newParsedElements.length; ++i) {
+      var newParsedElement = newParsedElements[i];
+      var lines = [];
+      
+      for (var j = 0; j < newParsedElement.lines.length; ++j) {
+        lines.push(spaceLine(oldParsedElements[i].lines[j], newParsedElements[i].lines[j]));
       }
       
-      var old = replacementWords[i].old;
-      var prev = result[result.length - 1].new_;
-      var curr = replacementWords[i].new_;
-      var prevEnd = prev.offset + prev.content.length - 1;
-      
-      if (curr.offset <= prevEnd + 1) {
-        result.push(new ReplacementWord(old, new Word(prevEnd + 2, curr.content, old.type)));
-      } else {
-        result.push(replacementWords[i]);
-      }
+      resultParsedElements.push(new ParsedElement(newParsedElement.text, lines, newParsedElement.selectionElement));
     }
     
-    return result;
+    return resultParsedElements;
+  }
+  
+  function spaceLine(oldLine, newLine) {
+    var totalDelta = 0;
+    var resultItems = [];
+    
+    for (var i = 0; i < newLine.items.length; ++i) {
+      var oldItem = oldLine.items[i];
+      var newItem = newLine.items[i];
+      
+      if (newItem instanceof Chord) {
+        var oldString = pkg.chord.toString(oldItem);
+        var newString = pkg.chord.toString(newItem);
+        totalDelta += newString.length - oldString.length;
+      } else if (newItem.type === pkg.parse.lexType.WHITESPACE) {
+        var newLength = Math.max(newItem.content.length - totalDelta, 1);
+        totalDelta -= (newItem.content.length - newLength);
+        newItem = new Word(pkg.util.repeatCharacter(' ', newLength), newItem.type);
+      }
+      
+      resultItems.push(newItem);
+    }
+    
+    return new Line(resultItems, newLine.offset, newLine.length);
   }
 }());

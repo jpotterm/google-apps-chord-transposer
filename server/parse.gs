@@ -17,17 +17,6 @@ pkg.parse = pkg.parse || {};
     {type: pkg.parse.lexType.OTHER,       regex: null},
   ];
 
-  function ContextChordLine(contextChords, lineEndOffset) {
-    this.contextChords = contextChords;
-    this.lineEndOffset = lineEndOffset;
-  }
-  
-  function ParsedElement(text, lines, selectionElement) {
-    this.text = text;
-    this.lines = lines;
-    this.selectionElement = selectionElement;
-  }
-  
   function parseDocument(document) {
     var body = document.getBody();
     var text = body.editAsText();
@@ -83,7 +72,10 @@ pkg.parse = pkg.parse || {};
       }
       
       var lineObj = parseLine(line, text, offset);
-      lineObjs.push(lineObj);
+      if (lineHasChords(lineObj)) {
+        lineObjs.push(lineObj);
+      }
+      
       offset += line.length + 1;
     }
     
@@ -91,73 +83,81 @@ pkg.parse = pkg.parse || {};
   }
   
   function parseLine(line, text, offset) {
-    var lineEndOffset = offset + line.length - 1;
-    var contextChords = contextChordsFromLine(line, offset);
-    return new ContextChordLine(contextChords, lineEndOffset);
+    var words = lexLine(line, lexTypes);
+    var items = parseChords(words);
+    return new Line(items, offset, line.length);
   }
   
-  function contextChordsFromLine(line, offset) {
-    var words = lexLine(line, offset, lexTypes);
-    return filterContextChords(words);
-  }
-  
-  function filterContextChords(words) {
-    var contextChords = [];
+  function parseChords(words) {
+    var line = [];
     
     for (var i = 0; i < words.length; ++i) {
       var word = words[i];
       var chord = pkg.chord.fromString(word.content);
       
-      if (chord === null) continue;
-//      if (isFalsePositive(i, words)) continue;
-      
-      contextChords.push(new pkg.chord.ContextChord(chord, word));
+      if (chord !== null && !isFalsePositive(i, words)) {
+        line.push(chord);
+      } else {
+        line.push(word);
+      }
     }
     
-    return contextChords;
+    return line;
   }
   
+  function lineHasChords(lineObj) {
+    for (var i = 0; i < lineObj.items.length; ++i) {
+      var item = lineObj.items[i];
+      if (item instanceof Chord) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+
   function isFalsePositive(i, words) {
-    var nonChordNeighbors = 0;
-    var chordNeighbors = 0;
+    var score = 0;
     
-    if (i !== 0) {
-      if (pkg.chord.isChord(words[i-1].content)) {
-        chordNeighbors += 1;
-      } else {
-        nonChordNeighbors += 1;
-      }
-    }
-    
-    if (i !== words.length - 1) {
-      if (pkg.chord.isChord(words[i+1].content)) {
-        chordNeighbors += 1;
-      } else {
-        nonChordNeighbors += 1;
-      }
-    }
+    var precedingNeighbors = words.slice(0, i).reverse();
+    var followingNeighbors = words.slice(i + 1);
     
     // If more neighbors aren't chords than are, then this probably isn't
     // a chord even if it has the right format
-    return nonChordNeighbors > chordNeighbors;
+    return scoreNeighbors(precedingNeighbors) + scoreNeighbors(followingNeighbors) < 0;
+
+    function scoreNeighbors(neighbors) {
+      for (var j = 0; j < neighbors.length; ++j) {
+        var word = neighbors[j];
+        
+        if (word.type === pkg.parse.lexType.OTHER) {
+          if (pkg.chord.isChord(word.content)) {
+            return 1;
+          } else {
+            return -1;
+          }
+        }
+      }
+      
+      return 0;
+    }
   }
-  
-  function lexLine(line, lineOffset, lexTypes) {
+
+  function lexLine(line, lexTypes) {
     var words = [];
     var processingWordType = null;
     var currentWord = '';
-    var currentWordOffset = lineOffset;
     
     for (var i = 0; i < line.length; ++i) {
       var c = line[i];
       
       for (var j = 0; j < lexTypes.length; ++j) {
         var lexType = lexTypes[j];
+
         if (lexType.regex === null || lexType.regex.test(c)) {
           if (processingWordType !== null && processingWordType != lexType.type) {
             // Different word type
-            words.push(new Word(currentWordOffset, currentWord, processingWordType));
-            currentWordOffset = i + lineOffset;
+            words.push(new Word(currentWord, processingWordType));
             currentWord = c;
           } else {
             // Same word type
@@ -171,7 +171,7 @@ pkg.parse = pkg.parse || {};
     }
       
     if (currentWord.length !== 0) {
-      words.push(new Word(currentWordOffset, currentWord, processingWordType));
+      words.push(new Word(currentWord, processingWordType));
     }
     
     return words;
