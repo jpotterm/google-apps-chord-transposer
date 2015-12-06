@@ -29,7 +29,7 @@ pkg.util.hasChords = function(parsedElements) {
 pkg.util.transposeParsedElements = function(mode, fromKey, toKey, parsedElements) {
   function transposeWord(contextChord) {
     var transposedChord = pkg.chord.transpose(mode, fromKey, toKey, contextChord.chord);
-    var transposedWord = new Word(contextChord.oldWord.offset, pkg.chord.toString(transposedChord));
+    var transposedWord = new Word(contextChord.oldWord.offset, pkg.chord.toString(transposedChord), contextChord.oldWord.type);
     return new ReplacementWord(contextChord.oldWord, transposedWord);
   }
   

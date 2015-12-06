@@ -5,6 +5,17 @@ pkg.parse = pkg.parse || {};
   pkg.parse.parseDocument = parseDocument;
   pkg.parse.parseSelection = parseSelection;
   pkg.parse.ParsedElement = ParsedElement;
+  pkg.parse.lexType = {
+    WHITESPACE: 0,
+    PUNCTUATION: 1,
+    OTHER: 2,
+  };
+  
+  var lexTypes = [
+    {type: pkg.parse.lexType.WHITESPACE,  regex: /^\s$/},
+    {type: pkg.parse.lexType.PUNCTUATION, regex: /^[\|\(\)\[\],]$/},
+    {type: pkg.parse.lexType.OTHER,       regex: null},
+  ];
 
   function ContextChordLine(contextChords, lineEndOffset) {
     this.contextChords = contextChords;
@@ -86,7 +97,7 @@ pkg.parse = pkg.parse || {};
   }
   
   function contextChordsFromLine(line, offset) {
-    var words = lexLine(line, offset);
+    var words = lexLine(line, offset, lexTypes);
     return filterContextChords(words);
   }
   
@@ -98,7 +109,7 @@ pkg.parse = pkg.parse || {};
       var chord = pkg.chord.fromString(word.content);
       
       if (chord === null) continue;
-      if (isFalsePositive(i, words)) continue;
+//      if (isFalsePositive(i, words)) continue;
       
       contextChords.push(new pkg.chord.ContextChord(chord, word));
     }
@@ -131,33 +142,36 @@ pkg.parse = pkg.parse || {};
     return nonChordNeighbors > chordNeighbors;
   }
   
-  function lexLine(line, lineOffset) {
+  function lexLine(line, lineOffset, lexTypes) {
     var words = [];
-    var processingWord = false;
+    var processingWordType = null;
     var currentWord = '';
-    var currentWordOffset = 0;
+    var currentWordOffset = lineOffset;
     
     for (var i = 0; i < line.length; ++i) {
       var c = line[i];
       
-      if (/^\s$/.test(c)) {
-        if (processingWord) {
-          processingWord = false;
-          words.push(new Word(currentWordOffset, currentWord));
-        }
-      } else {
-        if (processingWord) {
-          currentWord += c;
-        } else {
-          processingWord = true;
-          currentWordOffset = i + lineOffset;
-          currentWord = c;
+      for (var j = 0; j < lexTypes.length; ++j) {
+        var lexType = lexTypes[j];
+        if (lexType.regex === null || lexType.regex.test(c)) {
+          if (processingWordType !== null && processingWordType != lexType.type) {
+            // Different word type
+            words.push(new Word(currentWordOffset, currentWord, processingWordType));
+            currentWordOffset = i + lineOffset;
+            currentWord = c;
+          } else {
+            // Same word type
+            currentWord += c;
+          }
+          
+          processingWordType = lexType.type;
+          break;
         }
       }
     }
-    
-    if (processingWord) {
-      words.push(new Word(currentWordOffset, currentWord));
+      
+    if (currentWord.length !== 0) {
+      words.push(new Word(currentWordOffset, currentWord, processingWordType));
     }
     
     return words;

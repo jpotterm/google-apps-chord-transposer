@@ -131,7 +131,7 @@ pkg.render = pkg.render || {};
   }
   
   function increaseOffsetWord(offsetDelta, word) {
-    return new Word(word.offset + offsetDelta, word.content);
+    return new Word(word.offset + offsetDelta, word.content, word.type);
   }
   
   // -----
@@ -161,7 +161,7 @@ pkg.render = pkg.render || {};
       var prevEnd = prev.offset + prev.content.length - 1;
       
       if (curr.offset <= prevEnd + 1) {
-        result.push(new ReplacementWord(old, new Word(prevEnd + 2, curr.content)));
+        result.push(new ReplacementWord(old, new Word(prevEnd + 2, curr.content, old.type)));
       } else {
         result.push(replacementWords[i]);
       }

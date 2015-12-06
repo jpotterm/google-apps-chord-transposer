@@ -64,11 +64,11 @@
     formSubmit.value = 'Transpose';
     formSubmit.removeAttribute('disabled');
     
-    keyFrom.value = keyTo.value;
-    keyTo.value = '';
-    
     if (messages !== undefined && messages.length !== 0) {
       showMessages(formMessages, messages);
+    } else {
+      keyFrom.value = keyTo.value;
+      keyTo.value = '';
     }
   }
   

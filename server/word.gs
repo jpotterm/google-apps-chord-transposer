@@ -1,6 +1,7 @@
-function Word(offset, content) {
+function Word(offset, content, type) {
   this.offset = offset;
   this.content = content;
+  this.type = type;
 }
 
 function ReplacementWord(old, new_) {
