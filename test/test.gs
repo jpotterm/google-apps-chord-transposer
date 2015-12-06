@@ -77,11 +77,11 @@ function testChordFromString() {
 function testRepeatCharacter() {
   testSectionId = 2;
   
-  assertEqual(1, repeatCharacter('X', 0).length, 0);
-  assertEqual(2, repeatCharacter('X', 1).length, 1);
-  assertEqual(3, repeatCharacter('X', 7).length, 7);
-  assertEqual(4, repeatCharacter('X', -1).length, 0);
-  assertEqual(5, repeatCharacter('X', -7).length, 0);
+  assertEqual(1, pkg.util.repeatCharacter('X', 0).length, 0);
+  assertEqual(2, pkg.util.repeatCharacter('X', 1).length, 1);
+  assertEqual(3, pkg.util.repeatCharacter('X', 7).length, 7);
+  assertEqual(4, pkg.util.repeatCharacter('X', -1).length, 0);
+  assertEqual(5, pkg.util.repeatCharacter('X', -7).length, 0);
 }
 
 function assertEqual(testId, left, right) {

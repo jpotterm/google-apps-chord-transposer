@@ -43,7 +43,7 @@
       transposeKey(mode.value, keyFrom.value, keyTo.value);
     } else {
       // Error
-      showMessages(formMessages, ['You must select a from and to key.']);
+      showMessages(formMessages, ['You must select "From" and "To" keys.']);
     }
   }
     
@@ -55,7 +55,7 @@
     formSubmit.setAttribute('disabled', 'true');
     
     google.script.run.withSuccessHandler(success)
-        .withFailureHandler(failure).runTranspose(mode, from, to);
+        .withFailureHandler(failure).apiTranspose(mode, from, to);
   }
   
   function success(messages) {

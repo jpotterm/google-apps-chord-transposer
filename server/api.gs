@@ -1,27 +1,23 @@
-function runTranspose(modeString, from, to) {
+function apiTranspose(modeString, from, to) {
   var fromKey = pkg.note.fromString(from);
   var toKey = pkg.note.fromString(to);
   var mode = settings.modes[modeString];
-  
-  return runTransposeKey(mode, fromKey, toKey);
-}
 
-function runTransposeKey(mode, fromKey, toKey) {
   var document = DocumentApp.getActiveDocument();
   var selection = document.getSelection();
   var parsedElements;
   
   if (selection === null) {
-    parsedElements = parseDocument(document);
+    parsedElements = pkg.parse.parseDocument(document);
   } else {
-    parsedElements = parseSelection(document, selection);
+    parsedElements = pkg.parse.parseSelection(document, selection);
   }
   
-  var transposed = transposeParsedElements(mode, fromKey, toKey, parsedElements);
-  var spaced = spaceElements(transposed);
-  renderReplacementElements(spaced, document, selection);
+  var transposed = pkg.util.transposeParsedElements(mode, fromKey, toKey, parsedElements);
+  var spaced = pkg.render.spaceElements(transposed);
+  pkg.render.renderReplacementElements(spaced, document, selection);
   
-  if (hasChords(parsedElements)) {
+  if (pkg.util.hasChords(parsedElements)) {
     return [];
   } else {
     if (selection === null) {
@@ -30,4 +26,11 @@ function runTransposeKey(mode, fromKey, toKey) {
       return ['No chords found in selection.'];
     }
   }
+}
+
+function apiInclude(filename) {
+  // This function for use in templates
+  return HtmlService.createHtmlOutputFromFile(filename)
+      .setSandboxMode(HtmlService.SandboxMode.IFRAME)
+      .getContent();
 }

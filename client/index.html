@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons.css">
 
-<?!= include('client/style'); ?>
+<?!= apiInclude('client/style'); ?>
 
 <div class="sidebar">
   <div class="sidebar-section">
@@ -18,10 +18,10 @@
         <label>Key
         </label><select id="key-from">
           <option value="" selected>From</option>
-          <?!= include('client/key_options'); ?>
+          <?!= apiInclude('client/key_options'); ?>
         </select><select id="key-to">
           <option value="" selected>To</option>
-          <?!= include('client/key_options'); ?>
+          <?!= apiInclude('client/key_options'); ?>
         </select>
       </div>
       
@@ -32,4 +32,4 @@
   </div>
 </div>
 
-<?!= include('client/javascript'); ?>
+<?!= apiInclude('client/javascript'); ?>
