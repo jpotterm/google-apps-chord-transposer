@@ -12,8 +12,18 @@ pkg.note.toString = function(note) {
   return result;
 };
 
+pkg.note.letterDistance = function(low, high) {
+  var lowIndex = settings.noteNames.indexOf(low.name);
+  var highIndex = settings.noteNames.indexOf(high.name);
+  
+  if (lowIndex > highIndex) {
+    lowIndex += 7;
+  }
+  
+  return highIndex - lowIndex;
+};
 
-pkg.note.distance = function(low, high) {
+pkg.note.semitoneDistance = function(low, high) {
   return noteNameDistance(low.name, high.name) + (high.accidental - low.accidental);
   
   function noteNameDistance(low, high) {
@@ -39,17 +49,14 @@ pkg.note.scaleIndex = function(note, scale) {
   return -1;
 };
 
-pkg.note.transpose = function(mode, fromKey, toKey, note) {
-  var fromScale = pkg.scale.generate(mode, fromKey);
-  var toScale = pkg.scale.generate(mode, toKey);
+pkg.note.transpose = function(interval, note) {
+  var newLetter = pkg.util.circularLookup(
+    settings.noteNames.indexOf(note.name) + interval.letterDistance,
+    settings.noteNames
+  );
+  var newAccidental = interval.semitoneDistance - pkg.note.semitoneDistance(note, new Note(newLetter));
   
-  var fromIndex = pkg.note.scaleIndex(note, fromScale);
-  var fromChord = fromScale[fromIndex];
-  
-  var transposedNote = toScale[fromIndex];
-  transposedNote.accidental += note.accidental - fromChord.accidental;
-  
-  return transposedNote;
+  return new Note(newLetter, newAccidental);
 };
 
 pkg.note.fromString = function(str) {
@@ -71,3 +78,10 @@ pkg.note.fromString = function(str) {
   
   return note;
 };
+
+pkg.note.interval = function(low, high) {
+  var letterDistance = pkg.note.letterDistance(low, high);
+  var semitoneDistance = pkg.note.semitoneDistance(low, high);
+  return new Interval(letterDistance, semitoneDistance);
+};
+

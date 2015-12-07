@@ -1,7 +1,7 @@
-function apiTranspose(modeString, from, to) {
+function apiTranspose(from, to) {
   var fromKey = pkg.note.fromString(from);
   var toKey = pkg.note.fromString(to);
-  var mode = settings.modes[modeString];
+  var interval = pkg.note.interval(fromKey, toKey);
 
   var document = DocumentApp.getActiveDocument();
   var selection = document.getSelection();
@@ -13,7 +13,7 @@ function apiTranspose(modeString, from, to) {
     parsedElements = pkg.parse.parseSelection(document, selection);
   }
   
-  var transposed = pkg.util.transposeParsedElements(mode, fromKey, toKey, parsedElements);
+  var transposed = pkg.util.transposeParsedElements(interval, parsedElements);
   var spaced = pkg.render.spaceParsedElements(parsedElements, transposed);
   pkg.render.renderParsedElements(spaced, document, selection);
   

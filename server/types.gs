@@ -22,6 +22,11 @@ function Note(name, accidental) {
   this.accidental = accidental;
 }
 
+function Interval(letterDistance, semitoneDistance) {
+  this.letterDistance = letterDistance;
+  this.semitoneDistance = semitoneDistance;
+}
+
 function Line(items, offset, length) {
   this.items = items;
   this.offset = offset;

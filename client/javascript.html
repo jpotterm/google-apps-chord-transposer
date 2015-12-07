@@ -1,7 +1,6 @@
 <script>
   window.transposeLocked = false;
   
-  var mode = document.getElementById('mode');
   var keyFrom = document.getElementById('key-from');
   var keyTo = document.getElementById('key-to');
   var formMessages = document.querySelector('.form-messages');
@@ -25,13 +24,13 @@
     function change(e) {
       emptySelectClass(e.currentTarget);
     }
-    
-    function emptySelectClass(select) {
-      if (select.value === '') {
-        select.classList.add('empty-select');
-      } else {
-        select.classList.remove('empty-select');
-      }
+  }
+  
+  function emptySelectClass(select) {
+    if (select.value === '') {
+      select.classList.add('empty-select');
+    } else {
+      select.classList.remove('empty-select');
     }
   }
 
@@ -40,14 +39,14 @@
     hideMessages(formMessages);
     
     if (keyFrom.value !== '' && keyTo.value !== '') {
-      transposeKey(mode.value, keyFrom.value, keyTo.value);
+      transposeKey(keyFrom.value, keyTo.value);
     } else {
       // Error
       showMessages(formMessages, ['You must select "From" and "To" keys.']);
     }
   }
     
-  function transposeKey(mode, from, to) {
+  function transposeKey(from, to) {
     if (window.transposeLocked) return;
     window.transposeLocked = true;
     
@@ -55,7 +54,7 @@
     formSubmit.setAttribute('disabled', 'true');
     
     google.script.run.withSuccessHandler(success)
-        .withFailureHandler(failure).apiTranspose(mode, from, to);
+        .withFailureHandler(failure).apiTranspose(from, to);
   }
   
   function success(messages) {
@@ -69,6 +68,7 @@
     } else {
       keyFrom.value = keyTo.value;
       keyTo.value = '';
+      emptySelectClass(keyTo);
     }
   }
   

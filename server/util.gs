@@ -30,7 +30,7 @@ pkg.util.hasChords = function(parsedElements) {
   return false;
 };
 
-pkg.util.transposeParsedElements = function(mode, fromKey, toKey, parsedElements) {
+pkg.util.transposeParsedElements = function(interval, parsedElements) {
   function transposeLine(line) {
     var newItems = [];
     
@@ -38,7 +38,7 @@ pkg.util.transposeParsedElements = function(mode, fromKey, toKey, parsedElements
       var item = line.items[i];
       
       if (item instanceof Chord) {
-        newItems.push(pkg.chord.transpose(mode, fromKey, toKey, item));
+        newItems.push(pkg.chord.transpose(interval, item));
       } else {
         newItems.push(item);
       }
@@ -63,4 +63,23 @@ pkg.util.mapLine = function(f, parsedElements) {
   }
   
   return parsedElements.map(helper);
+};
+
+pkg.util.circularSlice = function(startIndex, xs) {
+  var result = [];
+  
+  for (var i = 0; i < xs.length; ++i) {
+    result.push(xs[(i + startIndex) % xs.length]);
+  }
+  
+  return result;
+};
+
+pkg.util.circularIndex = function(index, limit) {
+  return ((index % limit) + limit) % limit;
+};
+
+pkg.util.circularLookup = function(index, xs) {
+  var newIndex = pkg.util.circularIndex(index, xs.length);
+  return xs[newIndex];
 };

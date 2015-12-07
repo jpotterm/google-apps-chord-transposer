@@ -1,12 +1,12 @@
 var pkg = pkg || {};
 pkg.chord = pkg.chord || {};
 
-pkg.chord.transpose = function(mode, fromKey, toKey, chord) {
-  var newNote = pkg.note.transpose(mode, fromKey, toKey, chord.note);
+pkg.chord.transpose = function(interval, chord) {
+  var newNote = pkg.note.transpose(interval, chord.note);
   
   var newBase = chord.base;
   if (chord.base !== null) {
-    newBase = pkg.note.transpose(mode, fromKey, toKey, chord.base);
+    newBase = pkg.note.transpose(interval, chord.base);
   }
   
   return new Chord(newNote, chord.rest, newBase);
