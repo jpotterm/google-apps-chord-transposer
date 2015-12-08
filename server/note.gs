@@ -39,16 +39,6 @@ pkg.note.semitoneDistance = function(low, high) {
   }
 };
 
-pkg.note.scaleIndex = function(note, scale) {
-  for (var i = 0; i < scale.length; ++i) {
-    if (note.name === scale[i].name) {
-      return i;
-    }
-  }
-  
-  return -1;
-};
-
 pkg.note.transpose = function(interval, note) {
   var newLetter = pkg.util.circularLookup(
     settings.noteNames.indexOf(note.name) + interval.letterDistance,

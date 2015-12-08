@@ -65,16 +65,6 @@ pkg.util.mapLine = function(f, parsedElements) {
   return parsedElements.map(helper);
 };
 
-pkg.util.circularSlice = function(startIndex, xs) {
-  var result = [];
-  
-  for (var i = 0; i < xs.length; ++i) {
-    result.push(xs[(i + startIndex) % xs.length]);
-  }
-  
-  return result;
-};
-
 pkg.util.circularIndex = function(index, limit) {
   return ((index % limit) + limit) % limit;
 };
